@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # essentials
 
 ## Project setup
@@ -55,3 +56,6 @@ pnpm lint
 ### Customize configuration
 
 See [Configuration Reference](https://vitejs.dev/config/).
+=======
+# lc.github.io
+>>>>>>> 4b11d597d49290e6f5bd10a94ad0c88c3a30454e
