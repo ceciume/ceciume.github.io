@@ -11,22 +11,17 @@ const routes = [
     component: () => import('@/layouts/default/Default.vue'),
     children: [
       {
-        path: '/',
-        name: 'Login',
-        component: () => import(/* webpackChunkName: "home" */ '@/views/LoginPage'),
+        path: '/U-login',
+        name: 'ulogin',
+        component: () => import( '@/views/U-Login'),
       },
     ],
   },
   {
-    path: '/U-login',
-    name: 'ulogin',
-    component: () => import( '@/views/U-login'),
-  },
-  // {
-  //   path: '/home',
-  //   name: 'HomePage',
-  //   component: HomePage
-  // }
+    path: '/home',
+    name: 'HomePage',
+    component: () =>import('@/views/HomePage')
+  }
 ]
 
 const router = createRouter({

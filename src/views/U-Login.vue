@@ -1,69 +1,75 @@
 <template>
-  <v-container>
-    <v-card color="white"
-            class="pa-3"
-            elevation="3">
-      <v-card-title class="my-4 text-h4">
-        <span class="flex-1"> Welcome </span>
-      </v-card-title>
-      <v-card-subtitle>Sign in to your account</v-card-subtitle>
-      <!-- sign in form -->
+  <v-container class="d-flex align-center fill-height">
+    <v-row justify="center"
+           class="d-flex justify-center">
+      <v-col cols="12"
+             sm="8"
+             md="4">
+        <v-card color="white"
+                class="pa-3"
+                elevation="3">
+          <v-card-title class="my-4 text-h4 text-center">
+            <span class="flex-1"> Welcome </span>
+          </v-card-title>
+          <v-card-subtitle class="text-center">Sign in to your account</v-card-subtitle>
+          <!-- sign in form -->
 
-      <v-card-text>
-        <v-form ref="refLoginForm"
-                class="text-left"
-                v-model="isFormValid"
-                lazy-validation>
-          <v-text-field ref="refUsername"
-                        v-model="username"
-                        required
-                        clearable
-                        :error="error"
-                        label="用户名"
-                        density="default"
-                        color="primary"
-                        bg-color="#fff"
-                        :rules="usernameRules"
-                        name="username"
-                        variant="solo"
-                        validateOn="blur"
-                        @keyup.enter="handleLogin"
-                        @change="resetErrors">
+          <v-card-text>
+            <v-form ref="refLoginForm"
+                    class="text-left"
+                    v-model="isFormValid"
+                    lazy-validation>
+              <v-text-field ref="refUsername"
+                            v-model="username"
+                            required
+                            clearable
+                            :error="error"
+                            label="用户名"
+                            density="default"
+                            color="primary"
+                            bg-color="#fff"
+                            :rules="usernameRules"
+                            name="username"
+                            variant="solo"
+                            validateOn="blur"
+                            @keyup.enter="handleLogin"
+                            @change="resetErrors">
 
-          </v-text-field>
-          <v-text-field ref="refPassword"
-                        v-model="password"
-                        :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                        label="密码"
-                        :type="showPassword ? 'text' : 'password'"
-                        :error="error"
-                        :error-messages="errorMessages"
-                        variant="solo"
-                        density="default"
-                        color="primary"
-                        bg-color="#fff"
-                        :rules="passwordRules"
-                        name="password"
-                        outlined
-                        validateOn="blur"
-                        @change="resetErrors"
-                        @keyup.enter="handleLogin"
-                        @click:append-inner="showPassword = !showPassword">
+              </v-text-field>
+              <v-text-field ref="refPassword"
+                            v-model="password"
+                            :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                            label="密码"
+                            :type="showPassword ? 'text' : 'password'"
+                            :error="error"
+                            :error-messages="errorMessages"
+                            variant="solo"
+                            density="default"
+                            color="primary"
+                            bg-color="#fff"
+                            :rules="passwordRules"
+                            name="password"
+                            outlined
+                            validateOn="blur"
+                            @change="resetErrors"
+                            @keyup.enter="handleLogin"
+                            @click:append-inner="showPassword = !showPassword">
 
-          </v-text-field>
+              </v-text-field>
 
-          <v-btn :loading="isLoading"
-                 :disabled="isSignInDisabled"
-                 block
-                 size="x-large"
-                 color="primary"
-                 @click="handleLogin"
-                 class="mt-2">登录</v-btn>
-        </v-form>
+              <v-btn :loading="isLoading"
+                     :disabled="isSignInDisabled"
+                     block
+                     size="x-large"
+                     color="primary"
+                     @click="handleLogin"
+                     class="mt-2">登录</v-btn>
+            </v-form>
 
-      </v-card-text>
-    </v-card>
-
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -104,6 +110,7 @@ const handleLogin = async () => {
     // 假设我们有一个名为 login 的函数，它接受电子邮件地址和密码作为参数，并返回一个 Promise
     await login(username.value, password.value);
     // 登录成功
+    this.$router.push('/home');
     // 在这里处理登录成功后的逻辑，例如跳转到主页
   } catch (err) {
     // 登录失败
@@ -131,8 +138,4 @@ const login = (email, password) => {
 </script>
 
 <style scoped>
-.card {
-  max-width: 400px;
-  margin: 0 auto;
-}
 </style>
