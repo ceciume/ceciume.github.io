@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-img src="https://th.bing.com/th/id/R.b66bc8bb9ee14d1a5784f4569010c311?rik=pGp6eGs64I0a%2fQ&pid=ImgRaw&r=0"></v-img>
     <v-row justify="center">
       <v-col cols="12"
              sm="8"
