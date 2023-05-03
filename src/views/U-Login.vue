@@ -56,19 +56,20 @@
                             @click:append-inner="showPassword = !showPassword">
 
               </v-text-field>
-              <vue-slide-unlock ref="slideUnlock"
-                                :width="300"
-                                :height="50"
-                                :text="'请向右滑动解锁'"
-                                :success-text="'解锁成功'"
-                                @success="onSuccess" />
+              <slide-verify :l="42"
+                            :r="9"
+                            :w="310"
+                            :h="155"
+                            @success="onSuccess"
+                            @fail="onFail"
+                            @refresh="onRefresh"></slide-verify>
               <v-btn :disabled="isSignInDisabled"
                      block
                      size="x-large"
                      color="primary"
                      @click="handleLogin"
                      class="mt-2">登录</v-btn>
-                    
+
             </v-form>
 
           </v-card-text>
@@ -81,17 +82,15 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import VueSlideUnlock from 'vue-slide-unlock'
-// import 'vue-slide-unlock/lib/vue-slide-unlock.css'
 const router = useRouter()
 
 const username = ref("admin");
 const password = ref("123456");
 const error = ref(false);
 const isSignInDisabled = ref(false);
-const errorMessage = ref("");
+const errorMessage = ref();
 const refLoginForm = ref();
-const isSlideUnlock = ref(false);
+
 // show password field
 const showPassword = ref(false);
 
@@ -99,11 +98,6 @@ const showPassword = ref(false);
 const resetErrors = () => {
   error.value = false;
   errorMessage.value = "";
-};
-const onSuccess = () => {
-  isSlideUnlock.value = true;
-  console.log("1111")
-  refreshPage();
 };
 // 验证
 const usernameRules = [
@@ -119,48 +113,58 @@ const passwordRules = ref([
 ]);
 
 const refreshPage = () => {
-  location.reload();
+  location.reload(0);
 }
+// 添加一个新的状态变量来跟踪滑动验证是否成功
+const isSlideVerifySuccess = ref(true);
 
+// 在滑动验证成功时更新状态变量
+const onSuccess = () => {
+  isSlideVerifySuccess.value = true;
+};
+
+// 在滑动验证失败时重置状态变量
+const onFail = () => {
+  isSlideVerifySuccess.value = false;
+};
+const onRefresh = () => {
+  console.log('刷新验证');
+};
 
 const handleLogin = async () => {
-
-  if (isSlideUnlock.value) {
+  if (isSlideVerifySuccess.value) {
     try {
-
       isSignInDisabled.value = true;
       // 发送登录请求
-      // 假设我们有一个名为 login 的函数，它接受电子邮件地址和密码作为参数，并返回一个 Promise
       await login(username.value, password.value);
+      localStorage.setItem('isLoggedIn', 'true');
       // 登录成功
-
-
       router.push('/home');
-      // 在这里处理登录成功后的逻辑，例如跳转到主页
     } catch (err) {
       // 登录失败
       error.value = true;
-      errorMessage.value = ('用户名或密码错误');
+      errorMessage.value = '用户名或密码错误';
+    } finally {
+      isSignInDisabled.value = false;
     }
   } else {
-    // 提示用户先滑动解锁
-    alert('请先滑动解锁');
-    
+    // 提示用户先滑动解锁和完成滑动验证
+    alert('请先滑动解锁并完成滑动验证');
     refreshPage();
   }
 };
 
 const login = (username, password) => {
   return new Promise((resolve, reject) => {
+
     // 模拟异步登录请求
     setTimeout(() => {
-      if (username === "admin" && password === "123456") {
+      if (username === 'admin' && password === '123456') {
         // 登录成功
         resolve();
       } else {
         // 登录失败
-        reject(new Error("用户名或密码错误"));
-        
+        reject(new Error('用户名或密码错误'));
       }
     }, 1000);
   });

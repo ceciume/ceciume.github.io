@@ -13,6 +13,7 @@
         <h2>相关数据分享平台链接</h2>
 
         <v-list v-if="links">
+         
           <v-list-item v-for="link in links"
                        :key="link.url">
             <v-list-item-content>
