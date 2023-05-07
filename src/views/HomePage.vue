@@ -1,19 +1,18 @@
 <template>
   <v-app>
-    <NavBar @changeView="currentView = $event"></NavBar>
     <v-main>
       <v-container>
         <component :is="currentView"></component>
       </v-container>
     </v-main>
-    <AppFooter :links="['首页', '关于', '用户手册']" />
+    <AppFooter :links="links" />
   </v-app>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue'
-import NavBar from '../components/NavBar.vue';
-import AppFooter from '../components/AppFooter.vue';
+import NavBar from '@/components/NavBar.vue';
+import AppFooter from '@/components/AppFooter.vue';
 
 import FrontPage from './FrontPage.vue'
 import MineralQuery from './MineralQuery.vue'
@@ -26,6 +25,15 @@ import UTutorial from './UTutorial.vue'
 
 
 export default defineComponent({
+  data () {
+    return {
+      links: [
+        { text: '首页', url: 'http://127.0.0.1:3000/home' },
+        { text: '关于', url: 'http://127.0.0.1:3000/home' },
+        { text: '隐私', url: 'https://www.example.com/link3' }
+      ]
+    }
+  },
   components: {
     NavBar,
     AppFooter,

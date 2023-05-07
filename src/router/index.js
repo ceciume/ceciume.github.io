@@ -1,64 +1,55 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
 
-// import LoginPage from '../views/LoginPage.vue'
-// import HomePage from '../views/HomePage.vue'
-
 
 const routes = [
   {
     path: '/',
-    component: () => import('../layouts/default/UDefault.vue'),
+    component: () => import('@/layouts/default/UDefault.vue'),
     children: [
       {
         path: '/',
         name: 'ulogin',
-        component: () => import('../views/U-Login.vue'),
+        component: () => import('@/views/U-Login.vue'),
       },
     ],
   },
   {
     path: '/home',
     name: 'HomePage',
-    component: () => import('../views/HomePage.vue'),
-    children: [
-      {
-        path: 'front-page',
-        name: 'frontPage',
-        component: () => import('../views/FrontPage.vue')
-      },
-      {
-        path: 'mineral-query',
-        name: 'mineralQuery',
-        component: () => import('../views/MineralQuery.vue')
-      },
-      {
-        path: 'dataset-query',
-        name: 'datasetQuery',
-        component: () => import('../views/DatasetQuery.vue')
-      },
-      {
-        path: 'about-us',
-        name: 'aboutUs',
-        component: () => import('../views/AboutUs.vue')
-      },
-      {
-        path: 'order-list',
-        name: 'orderList',
-        component: () => import('../views/OrderList.vue')
-      },
-      {
-        path: 'order-review',
-        name: 'orderReview',
-        component: () => import('../views/OrderReview.vue')
-      },
-      {
-        path: 'user-tutorial',
-        name: 'uTutorial',
-        component: () => import('../views/UTutorial.vue')
-      }
-    ]
+    component: () => import('@/views/FrontPage.vue')},
+  {
+    path: '/mineral-query',
+    name: 'mineralQuery',
+    component: () => import('@/views/MineralQuery.vue')
+  },
+  {
+    path: '/dataset-query',
+    name: 'datasetQuery',
+    component: () => import('@/views/DatasetQuery.vue')
+  },
+  {
+    path: '/about-us',
+    name: 'aboutUs',
+    component: () => import('@/views/AboutUs.vue')
+  },
+  {
+    path: '/order-list',
+    name: 'orderList',
+    component: () => import('@/views/OrderList.vue')
+  },
+  {
+    path: '/order-review',
+    name: 'orderReview',
+    component: () => import('@/views/OrderReview.vue')
+  },
+  {
+    path: '/user-tutorial',
+    name: 'uTutorial',
+    component: () => import('@/views/UTutorial.vue')
   }
+
+ 
 ]
 
 const router = createRouter({

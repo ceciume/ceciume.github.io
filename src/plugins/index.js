@@ -9,7 +9,8 @@ import { loadFonts } from './webfontloader'
 import vuetify from './vuetify'
 import pinia from '../store'
 import router from '../router'
-import SlideVerify from 'vue3-slide-verify';
+import SlideVerify from 'vue-monoplasty-slide-verify';
+import vClickOutside from 'v-click-outside';
 
 export function registerPlugins (app) {
   loadFonts()
@@ -17,5 +18,6 @@ export function registerPlugins (app) {
     .use(vuetify)
     .use(router)
     .use(pinia)
-    .component('slide-verify', SlideVerify);
+    .use(SlideVerify)
+    .use(vClickOutside)
 }

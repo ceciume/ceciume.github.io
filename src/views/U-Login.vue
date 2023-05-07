@@ -56,13 +56,7 @@
                             @click:append-inner="showPassword = !showPassword">
 
               </v-text-field>
-              <slide-verify :l="42"
-                            :r="9"
-                            :w="310"
-                            :h="155"
-                            @success="onSuccess"
-                            @fail="onFail"
-                            @refresh="onRefresh"></slide-verify>
+             <!-- <slide-verify :l="42" :r="10" :w="310" :h="155" slider-text="向右滑动" @success="onSuccess" @fail="onFail"></slide-verify> -->
               <v-btn :disabled="isSignInDisabled"
                      block
                      size="x-large"
@@ -118,18 +112,16 @@ const refreshPage = () => {
 // 添加一个新的状态变量来跟踪滑动验证是否成功
 const isSlideVerifySuccess = ref(true);
 
-// 在滑动验证成功时更新状态变量
-const onSuccess = () => {
-  isSlideVerifySuccess.value = true;
-};
+// // 在滑动验证成功时更新状态变量
+// const onSuccess = () => {
+//   isSlideVerifySuccess.value = true;
+// };
 
-// 在滑动验证失败时重置状态变量
-const onFail = () => {
-  isSlideVerifySuccess.value = false;
-};
-const onRefresh = () => {
-  console.log('刷新验证');
-};
+// // 在滑动验证失败时重置状态变量
+// const onFail = () => {
+//   isSlideVerifySuccess.value = false;
+//   this.$refs.slideVerify.refresh();
+// };
 
 const handleLogin = async () => {
   if (isSlideVerifySuccess.value) {

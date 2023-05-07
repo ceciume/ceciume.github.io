@@ -1,10 +1,15 @@
 <template>
-   <div>
+  <div>
     <!--地图控件-->
     <v-card class="map-container">
-      <div ref="map" class="map"></div>
+      <div ref="map"
+           class="map"></div>
       <div class="map-overlay">
-        <v-select v-model="mapStyle" :items="mapStyles" item-text="label" item-value="value" label="Select map style"></v-select>
+        <v-select v-model="mapStyle"
+                  :items="mapStyles"
+                  item-text="label"
+                  item-value="value"
+                  label="Select map style"></v-select>
       </div>
     </v-card>
 
@@ -14,11 +19,19 @@
       <div class="container">
         <!-- 输入框搜索 -->
         <div class="search-container">
-          <v-text-field v-model="searchTerm" label="Search..."></v-text-field>
+          <v-text-field class="search-box"
+                        v-model="searchTerm"
+                        label="搜索"
+                        outlined></v-text-field>
         </div>
+
         <!-- 标签搜索 -->
         <div class="tags-container">
-          <v-chip v-for="(tag, index) in tags" :key="index" :input-value="selectedTags.includes(tag)" @click="toggleTag(tag)">
+          <v-chip v-for="(tag, index) in tags"
+                  :key="index"
+                  :input-value="selectedTags.includes(tag)"
+                  @click="toggleTag(tag)"
+                  :color="tagColor(tag)">
             {{ tag }}
           </v-chip>
         </div>
@@ -26,7 +39,10 @@
     </v-card>
     <v-spacer></v-spacer>
     <!-- 数据集列表 -->
-    <v-card v-for="(item, index) in filteredItems" :key="index" class="dataset-card" @click="goToDatasetDetail(item.id,item.title)">
+    <v-card v-for="(item, index) in filteredItems"
+            :key="index"
+            class="dataset-card"
+            @click="goToDatasetDetail(item.id,item.title)">
       <template v-slot:header>
         <h3>{{ item.title }}</h3>
       </template>
@@ -81,6 +97,9 @@ export default {
         const matchesSelectedTags = this.selectedTags.length === 0 || this.selectedTags.some(tag => item.tags.includes(tag))
         return matchesSearchTerm && matchesSelectedTags
       })
+    },
+    tagColor () {
+      return tag => this.selectedTags.includes(tag) ? '#0b5fbf' : '';
     }
   },
   name: "DatasetQuery",
@@ -134,6 +153,8 @@ export default {
 /* 地图容器的样式 */
 .map-container {
   position: relative;
+  margin: 0 auto;
+  width: 80%;
   border-radius: 10px;
 }
 
@@ -146,18 +167,19 @@ export default {
   right: 10px;
 }
 
-/* 间隔 */
-.spacer {
-  height: 20px;
-}
 /* 搜索栏 */
+.search-box {
+  color: #1a2027;
 
+  width: 200px;
+}
 .card {
   margin: 0 auto;
   width: 80%;
-  background-color: #ecdfdf;
+  background-color: transparent;
   border-radius: 10px;
   padding: 20px;
+  margin-top: 10px;
 }
 .card:hover {
   transform: scale(1.1);
@@ -168,10 +190,6 @@ export default {
   align-items: center;
 }
 
-.search-container {
-  margin-right: 20px;
-}
-
 .tag {
   display: inline-block;
   padding: 5px;
@@ -180,22 +198,27 @@ export default {
   border-radius: 10px;
 }
 .tag.active {
-  background-color: #ccc;
+  background-color: #0b5fbf;
 }
 .tags-container {
+  flex-basis: 60%;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
 }
 
-.tag + .tag {
-  margin-left: 4px;
+.tags-container > .v-chip {
+  margin: 4px;
 }
 /* 数据集卡片 */
 .dataset-card {
   border: 1px solid #ccc;
   padding: 10px;
+  width: 80%;
   margin-bottom: 20px;
   border-radius: 10px;
+  margin: auto;
+  margin-top: 10px;
 }
 </style>
 

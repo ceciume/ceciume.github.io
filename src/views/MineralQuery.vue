@@ -1,20 +1,64 @@
 <template>
-<v-card>
-  <div class="map-container" ref="map"></div>
-  <div class="map-overlay">
-    <v-select v-model="mapStyle" :items="mapStyles" item-text="label" item-value="value" label="Select map style"></v-select>
-    <v-text-field label="Label" prepend-icon="mdi-vuetify"></v-text-field>
-  </div>
+  <div>
+    <v-card class="map-container">
+      <!-- 搜索栏 -->
 
-  <div class="search-container">
-    <v-text-field label="Search..."></v-text-field>
+      <div class="search-container">
+        <v-text-field v-if="!showAdvancedSearch"
+                      clearable
+                      variant="solo-filled"
+                      class="search-field"
+                      v-model="searchText"
+                      label="搜索"
+                      @keyup.enter="search">
+          <template v-slot:append-inner>
+            <v-icon @click="showAdvancedSearch=true">mdi-dots-vertical</v-icon>
+          </template>
+        </v-text-field>
+        <!-- 高级搜索框 -->
+        <div v-else
+             v-click-outside="closeAdvancedSearch">
+          <v-card class="advanced-card">
+            <v-card-text>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field label="矿区名称"
+                                v-model="mineName"></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-select label="矿床类型"
+                            v-model="type"
+                            :items="typeOptions"></v-select>
+                </v-col>
+                <v-col cols="12">
+                  <v-text-field label="国家名称）"
+                                v-model="country"
+                                type="country"></v-text-field>
+                </v-col>
+                <v-col cols="12"
+                       class="text-right">
+                  <v-btn color="primary"
+                         class="btn-spacing"
+                         @click="search">搜索</v-btn>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </div>
+      </div>
+
+      <!-- 图层选择器 -->
+
+      <!-- 地图控件 -->
+      <div ref="map"
+           class="map"></div>
+    </v-card>
   </div>
-</v-card>
 </template>
 
 <script>
 import mapboxgl from "mapbox-gl"
-export default{
+export default {
   data () {
     return {
       map: null,
@@ -39,71 +83,254 @@ export default{
           type: "xyz"
         }
       ],
-      mapStyle: "mapbox://styles/mapbox/streets-v11"
+      mapStyle: "mapbox://styles/mapbox/streets-v11",
+      searchText: '',
+      showAdvancedSearch: false,
+      type: '',
+      typeOptions: [
+        '花岗岩',
+        '火山岩',
+        '砂岩',
+        '碳硅泥'
+      ],
+      country: '',
+      mineName: '',
+      places: [
+        {
+          name: '帕劳群岛',
+          imageSrc: "https://picsum.photos/id/1021/200",
+          location: {
+            lat: 7.51498,
+            lng: 134.58252
+          },
+          description: '位于太平洋中部的热带天堂，拥有美丽的珊瑚礁和海滩。',
+          link: 'https://zh.wikipedia.org/wiki/%E5%B8%95%E5%8A%B3%E7%BE%A4%E5%B2%9B'
+        },
+        {
+          name: '埃菲尔铁塔',
+          imageSrc: "https://picsum.photos/id/1021/200",
+          location: {
+            lat: 48.85837,
+            lng: 2.29448
+          },
+          description: '位于法国巴黎市的地标性建筑，高324米，是法国最著名的旅游景点之一。',
+          link: 'https://zh.wikipedia.org/wiki/%E5%9F%83%E8%8F%B2%E5%B0%94%E9%93%81%E5%A1%94'
+        },
+        {
+          name: '金门大桥',
+          imageSrc: "https://picsum.photos/id/1021/200",
+          location: {
+            lat: 37.81993,
+            lng: -122.47852
+          },
+          description: '位于美国加利福尼亚州旧金山湾区，是世界上最长的悬索桥之一。',
+          link: 'https://zh.wikipedia.org/wiki/%E9%87%91%E9%96%80%E5%A4%A7%E6%A9%8B'
+        },
+        {
+          name: '普罗旺斯',
+          imageSrc: "https://picsum.photos/id/1021/200",
+          location: {
+            lat: 43.94819,
+            lng: 4.80506
+          },
+          description: '法国南部地区，以其美丽的薰衣草田和酒庄而闻名。',
+          link: 'https://zh.wikipedia.org/wiki/%E6%99%AE%E7%BD%97%E6%97%BA%E6%96%AF'
+        },
+        {
+          name: '乞力马扎罗山',
+          imageSrc: "https://picsum.photos/id/1021/200",
+          location: {
+            lat: -3.06742,
+            lng: 37.35563
+          },
+          description: '坐落于坦桑尼亚的山脉，是非洲最高峰，同时也是世界七大高峰之一。',
+          link: 'https://zh.wikipedia.org/wiki/%E4%B9%9E%E5%8A%9B%E9%A9%AC%E6%89%8E%E7%BD%97%E5%B1%B1'
+        },
+        {
+          name: "玄武湖",
+          imageSrc: "https://picsum.photos/id/1018/200",
+          location: {
+            lat: 32.065,
+            lng: 118.803
+          },
+          description: "玄武湖位于南京市中心，是南京市著名的风景区和旅游景点。",
+          link: "https://zh.wikipedia.org/wiki/%E7%8E%84%E6%AD%A6%E6%B9%96"
+        },
+        {
+          name: "苏州园林",
+          imageSrc: "https://picsum.photos/id/1019/200",
+          location: {
+            lat: 31.299,
+            lng: 120.585
+          },
+          description: "苏州园林，是中国苏州市的园林文化遗产。苏州园林是苏州园林文化的代表，是江南园林的瑰宝。",
+          link: "https://zh.wikipedia.org/wiki/%E8%8B%8F%E5%B7%9E%E5%9B%AD%E6%9E%97"
+        },
+        {
+          name: "黄山",
+          imageSrc: "https://picsum.photos/id/1020/200",
+          location: {
+            lat: 30.131,
+            lng: 118.168
+          },
+          description: "黄山位于安徽省南部，是中国著名的风景区、文化区、世界文化与自然遗产。",
+          link: "https://zh.wikipedia.org/wiki/%E9%BB%84%E5%B1%B1"
+        },
+        {
+          name: "泰山",
+          imageSrc: "https://picsum.photos/id/1021/200",
+          location: {
+            lat: 36.201,
+            lng: 117.129
+          },
+          description: "泰山位于中国山东省泰安市境内，是中国著名的名山之一，素有五岳之首的美誉。",
+          link: "https://zh.wikipedia.org/wiki/%E6%B3%B0%E5%B1%B1"
+        },
+        {
+          name: "故宫",
+          imageSrc: "https://picsum.photos/id/1022/200",
+          location: {
+            lat: 39.916,
+            lng: 116.397
+          },
+          description: "故宫是明清两代的皇宫，位于中国北京市中心的故宫广场上，是中国明清两代的宫廷建筑群，也是世界上现存规模最大、保存最完整的木质结构古建筑之一。",
+          link: "https://zh.wikipedia.org/wiki/%E6%95%85%E5%AE%AB"
+        }
+
+      ],
     }
   },
   mounted () {
-    this.initializeMap()
+    mapboxgl.accessToken =
+      "pk.eyJ1IjoibGlmZW5nMTExIiwiYSI6ImNsZ201Z2tnMzAyaGYzcnAzcXN1NTU5c3IifQ.iSuM-U4bOnTlKApmXsXSig"
+    this.map = new mapboxgl.Map({
+      container: this.$refs.map,
+      style: this.mapStyle,
+      center: [121.47, 31.23],
+      zoom: 12
+    })
+
+    // 为每个点添加唯一的 ID
+    const features = this.places.map((place, index) => {
+      return {
+        id: index,
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [place.location.lng, place.location.lat]
+        },
+        properties: {
+          title: place.name,
+          icon: 'marker',
+          description: place.description,
+          link: place.link,
+          imageSrc: place.imageSrc
+        }
+      };
+    });
+
+    // 添加图层
+    this.map.on('load', () => {
+      this.map.addSource('places', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: features
+        }
+      });
+
+      this.map.addLayer({
+        id: 'places',
+        type: 'symbol',
+        source: 'places',
+        layout: {
+          'icon-image': '{icon}-15',
+          'text-field': '{title}',
+          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+          'text-offset': [0, 0.6],
+          'text-anchor': 'top'
+        }
+      });
+
+      // 注册 click 事件处理程序
+      this.map.on('click', 'places', (e) => {
+        // 获取被单击的要素
+        const feature = e.features[0];
+        const dCard = `<v-card style="z-index: 1; opacity: 0.8; width: 350px; border-radius: 10px;">
+      <v-card-title>${feature.properties.title}</v-card-title>
+      <v-card-text>${feature.properties.description}</v-card-text>
+    </v-card>`;
+        // 创建弹出卡片
+        const popup = new mapboxgl.Popup({ offset: [10, -10] })
+          .setLngLat(feature.geometry.coordinates)
+          .setHTML(dCard);
+        // 将卡片与地图上的点关联起来
+        popup.addTo(this.map);
+      });
+
+      // 将鼠标指针设置为手型，以表明可点击
+      this.map.on('mouseenter', 'places', () => {
+        this.map.getCanvas().style.cursor = 'pointer';
+      });
+
+      // 将鼠标指针恢复为默认值
+      this.map.on('mouseleave', 'places', () => {
+        this.map.getCanvas().style.cursor = '';
+      });
+    });
+
+
+
+
+
+
   },
   methods: {
-    initializeMap () {
-      mapboxgl.accessToken =
-        "pk.eyJ1IjoibGlmZW5nMTExIiwiYSI6ImNsZ201Z2tnMzAyaGYzcnAzcXN1NTU5c3IifQ.iSuM-U4bOnTlKApmXsXSig"
-      this.map = new mapboxgl.Map({
-        container: this.$refs.map,
-        style: this.mapStyle,
-        center: [121.47, 31.23],
-        zoom: 12
-      })
-    }
+    search () {
+      // 在这里执行搜索操作
+      console.log('搜索:', this.searchText);
+    },
+    closeAdvancedSearch (event) {
+      if (!event.target.closest('.v-menu__content')) {
+        this.showAdvancedSearch = false;
+      }
+    },
+
   },
   watch: {
-    mapStyle (newStyle) {
-      const selectedStyle = this.mapStyles.find((style) => style.value === newStyle)
-      if (selectedStyle.type === "wmts") {
-        this.map.setStyle({
-          version: 8,
-          sources: {
-            "raster-tiles": {
-              type: "raster",
-              tiles: [selectedStyle.value],
-              tileSize: 256
-            }
-          },
-          layers: [
-            {
-              id: "simple-tiles",
-              type: "raster",
-              source: "raster-tiles",
-              minzoom: 0,
-              maxzoom: 22
-            }
-          ]
-        })
-      } else if (selectedStyle.type === "xyz") {
-        this.map.setStyle({
-          version: 8,
-          sources: {
-            "raster-tiles": {
-              type: "raster",
-              tiles: [selectedStyle.value],
-              tileSize: 256
-            }
-          },
-          layers: [
-            {
-              id: "simple-tiles",
-              type: "raster",
-              source: "raster-tiles",
-              minzoom: 0,
-              maxzoom: 22
-            }
-          ]
-        })
-      } else {
-        this.map.setStyle(newStyle)
-      }
-    }
+
   }
 }
 </script>
+<style scoped>
+.map-container {
+  height: 90vh;
+  width: 100vw;
+}
+.map {
+  height: 90vh;
+  width: 100vw;
+}
+.search-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1;
+  opacity: 0.9;
+  width: 350px;
+  border-radius: 10px;
+}
+/* 高级搜索 */
+.advanced-card {
+  background-color: #e8e8e8;
+}
+.marker {
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+}
+.des-card {
+  z-index: 1;
+  opacity: 0.9;
+}
+</style>
