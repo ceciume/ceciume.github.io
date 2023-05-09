@@ -4,17 +4,19 @@
       <!-- 搜索栏 -->
 
       <div class="search-container">
-        <v-text-field v-if="!showAdvancedSearch"
-                      clearable
-                      variant="solo-filled"
-                      class="search-field"
-                      v-model="searchText"
-                      label="搜索"
-                      @keyup.enter="search">
+        <v-autocomplete v-if="!showAdvancedSearch"
+                        clearable
+                        variant="solo-filled"
+                        class="search-field"
+                        v-model="searchText"
+                        label="搜索"
+                        :items="placeNames"
+                        @input="search"
+                        @keyup.enter="search">
           <template v-slot:append-inner>
             <v-icon @click="showAdvancedSearch=true">mdi-dots-vertical</v-icon>
           </template>
-        </v-text-field>
+        </v-autocomplete>
         <!-- 高级搜索框 -->
         <div v-else
              v-click-outside="closeAdvancedSearch">
@@ -48,6 +50,22 @@
       </div>
 
       <!-- 图层选择器 -->
+      <div class="layer-switcher">
+        <!-- <select v-model="selectedMapSource"
+                @change="updateMapSource">
+          <option v-for="source in mapSources"
+                  :value="source.value"
+                  :key="source.value">
+            {{ source.text }}
+          </option>
+        </select> -->
+        <v-select v-model="selectedMap"
+                  :items="mapSources"
+                  label="选择地图源"
+                  class="wide-select"></v-select>
+        <div id="map"></div>
+
+      </div>
 
       <!-- 地图控件 -->
       <div ref="map"
@@ -55,7 +73,14 @@
       <!-- 地点描述卡片 -->
       <v-card class="des-card"
               v-if="selectedPlace">
-        <v-card-title>{{ selectedPlace?.title }}</v-card-title>
+        <v-card-title class="d-flex justify-space-between">
+          {{ selectedPlace?.title }}
+          <v-btn icon
+                 style="height: 30px; width: 30px;"
+                 @click="selectedPlace = null">
+            <v-icon size="18">mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
         <v-img :src="selectedPlace?.imageSrc"
                height="100px"></v-img>
 
@@ -89,27 +114,12 @@ export default {
     return {
       map: null,
       mapStyles: [
-        { label: "Streets", value: "mapbox://styles/mapbox/streets-v11" },
-        { label: "Satellite", value: "mapbox://styles/mapbox/satellite-v9" },
-        { label: "Dark", value: "mapbox://styles/mapbox/dark-v10" },
-        {
-          label: "天地图",
-          value:
-            "http://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles&tk=ce6c110706b934f7f8e25ff19e61850a",
-          type: "wmts"
-        },
-        {
-          label: "Google Maps",
-          value: "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}",
-          type: "xyz"
-        },
-        {
-          label: "OpenStreetMap",
-          value: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          type: "xyz"
-        }
+        { title: '街道', value: 'mapbox://styles/mapbox/streets-v11' },
+        { title: '卫星', value: 'mapbox://styles/mapbox/satellite-streets-v11' }
       ],
       mapStyle: "mapbox://styles/mapbox/streets-v11",
+      selectedMap: '' + '街道' + '',
+      mapSources: ['街道', '卫星'],
       searchText: '',
       showAdvancedSearch: false,
       type: '',
@@ -241,6 +251,7 @@ export default {
         }
 
       ],
+      selectedPlace: '',
     }
   },
   mounted () {
@@ -248,98 +259,135 @@ export default {
       "pk.eyJ1IjoibGlmZW5nMTExIiwiYSI6ImNsZ201Z2tnMzAyaGYzcnAzcXN1NTU5c3IifQ.iSuM-U4bOnTlKApmXsXSig"
     this.map = new mapboxgl.Map({
       container: this.$refs.map,
-      style: this.mapStyle,
+      style: 'mapbox://styles/mapbox/streets-v11',
       center: [121.47, 31.23],
       zoom: 12
     })
-
-    // 为每个点添加唯一的 ID
-    const features = this.places.map((place, index) => {
-      return {
-        id: index,
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [place.location.lng, place.location.lat]
-        },
-        properties: {
-          title: place.name,
-          icon: 'marker',
-          description: place.description,
-          link: place.link,
-          imageSrc: place.imageSrc,
-          relatedLinks: place.relatedLinks
-        }
-      };
+    this.addPoints();
+    // // 注册 click 事件处理程序
+    // this.map.on('click', (e) => {
+    //   // 获取当前点击位置的要素
+    //   const features = this.map.queryRenderedFeatures(e.point);
+    //   // 检查 features 数组的长度
+    //   if (features.length === 0) {
+    //     // 如果 features 数组的长度为 0，将 selectedPlace 变量的值设置为 null
+    //     this.selectedPlace = null;
+    //   }
+    // });
+    // 注册 click 事件处理程序
+    this.map.on('click', 'places', (e) => {
+      // 获取当前点击位置的要素
+      const features = this.map.queryRenderedFeatures(e.point, { layers: ['places'] });
+      // 检查 e.features 数组的长度
+      if (this.map.getCanvas().style.cursor !== 'pointer') {
+        this.selectedPlace = null;
+      }
+      if (features.length === 0) {
+        console.log(1)
+        // 如果 e.features 数组的长度为 0，将 selectedPlace 变量的值设置为 null
+        this.selectedPlace = null;
+      } else {
+        // 否则，获取被单击的要素
+        const feature = e.features[0];
+        console.log(feature.properties);
+        this.selectedPlace = feature.properties;
+      }
+    });
+    // 将鼠标指针设置为手型，以表明可点击
+    this.map.on('mouseenter', 'places', () => {
+      this.map.getCanvas().style.cursor = 'pointer';
     });
 
-    // 添加图层
-    this.map.on('load', () => {
-      this.map.addSource('places', {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: features
-        }
-      });
-
-      this.map.addLayer({
-        id: 'places',
-        type: 'symbol',
-        source: 'places',
-        layout: {
-          'icon-image': '{icon}-15',
-          'text-field': '{title}',
-          'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-          'text-offset': [0, 0.6],
-          'text-anchor': 'top'
-        }
-      });
-
-      // 注册 click 事件处理程序
-      this.map.on('click', 'places', (e) => {
-        // 获取当前点击位置的要素
-        const features = this.map.queryRenderedFeatures(e.point);
-        // 检查 e.features 数组的长度
-        if (features.length === 0) {
-          // 如果 e.features 数组的长度为 0，将 selectedPlace 变量的值设置为 null
-          this.selectedPlace = null;
-        } else {
-          // 否则，获取被单击的要素
-          const feature = e.features[0];
-          console.log(feature.properties);
-          this.selectedPlace = feature.properties;
-        }
-      });
-
-      // 将鼠标指针设置为手型，以表明可点击
-      this.map.on('mouseenter', 'places', () => {
-        this.map.getCanvas().style.cursor = 'pointer';
-      });
-
-      // 将鼠标指针恢复为默认值
-      this.map.on('mouseleave', 'places', () => {
-        this.map.getCanvas().style.cursor = '';
-      });
+    // 将鼠标指针恢复为默认值
+    this.map.on('mouseleave', 'places', () => {
+      this.map.getCanvas().style.cursor = '';
     });
-
-
-
   },
   methods: {
     search () {
       // 在这里执行搜索操作
-      console.log('搜索:', this.searchText);
+      const place = this.places.find(place => place.name === this.searchText);
+      if (place) {
+        // 更新地图以显示选定的地点
+        // console.log(11);
+        // console.log(place.location.lng);
+        const offsetLng = place.location.lng + 0.01;
+        this.map.flyTo({
+
+          center: [offsetLng, place.location.lat],
+          zoom: 14
+        });
+      }
     },
     closeAdvancedSearch (event) {
       if (!event.target.closest('.v-menu__content')) {
         this.showAdvancedSearch = false;
       }
     },
+    // 添加点图层
+    addPoints () {
+      // 为每个点添加唯一的 ID
+      const features = this.places.map((place, index) => {
+        return {
+          id: index,
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [place.location.lng, place.location.lat]
+          },
+          properties: {
+            title: place.name,
+            icon: 'marker',
+            description: place.description,
+            link: place.link,
+            imageSrc: place.imageSrc,
+            relatedLinks: place.relatedLinks
+          }
+        };
+      });
+
+      // 添加图层
+      this.map.once('styledata', () => {
+        this.map.addSource('places', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: features
+          }
+        });
+
+        this.map.addLayer({
+          id: 'places',
+          type: 'symbol',
+          source: 'places',
+          layout: {
+            'icon-image': '{icon}-15',
+            'text-field': '{title}',
+            'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+            'text-offset': [0, 0.6],
+            'text-anchor': 'top'
+          }
+        });
+      });
+
+    },
+
 
   },
   watch: {
-
+    selectedMap (newVal) {
+      if (newVal === '街道') {
+        this.map.setStyle('mapbox://styles/mapbox/streets-v11');
+      } else if (newVal === '卫星') {
+        this.map.setStyle('mapbox://styles/mapbox/satellite-v9');
+      }
+      this.addPoints();
+    },
+  },
+  computed: {
+    placeNames () {
+      return this.places.map(place => place.name)
+    }
   }
 }
 </script>
@@ -389,5 +437,8 @@ export default {
   padding: 10px;
   border-radius: 4px;
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
+}
+.wide-select {
+  width: 200px;
 }
 </style>
